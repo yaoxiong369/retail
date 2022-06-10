@@ -40,7 +40,7 @@
         <jodatime.version>2.10.1</jodatime.version>
     </properties>
 
-    <!--配置dependencyManagement锁定依赖的版本-->
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -59,7 +59,7 @@
                 <scope>import</scope>
             </dependency>
 
-            <!--mybatis-plus 持久层-->
+
             <dependency>
                 <groupId>com.baomidou</groupId>
                 <artifactId>mybatis-plus-boot-starter</artifactId>
@@ -72,13 +72,13 @@
                 <version>${mysql.version}</version>
             </dependency>
 
-            <!--swagger-->
+
             <dependency>
                 <groupId>io.springfox</groupId>
                 <artifactId>springfox-swagger2</artifactId>
                 <version>${swagger.version}</version>
             </dependency>
-            <!--swagger ui-->
+
             <dependency>
                 <groupId>io.springfox</groupId>
                 <artifactId>springfox-swagger-ui</artifactId>
@@ -121,14 +121,14 @@
                 <version>${oss.version}</version>
             </dependency>
 
-            <!--日期时间工具-->
+
             <dependency>
                 <groupId>joda-time</groupId>
                 <artifactId>joda-time</artifactId>
                 <version>${jodatime.version}</version>
             </dependency>
 
-            <!--test-->
+
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-test</artifactId>
@@ -137,7 +137,7 @@
         </dependencies>
     </dependencyManagement>
 
-    <!-- 项目打包时会将java目录中的*.xml文件也进行打包 -->
+
     <build>
         <resources>
             <resource>
