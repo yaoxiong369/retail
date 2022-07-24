@@ -32,14 +32,17 @@ public class FeignInterceptor implements RequestInterceptor {
 
     private Map<String, String> getHeaders(HttpServletRequest request) {
         Map<String, String> map = new LinkedHashMap<>();
-        Enumeration<String> enumeration = request.getHeaderNames();
-        while (enumeration.hasMoreElements()) {
-            String key = enumeration.nextElement();
-            if (needThisHeader(key)) {
-                String value = request.getHeader(key);
-                map.put(key, value);
+        if(request!=null){
+            Enumeration<String> enumeration = request.getHeaderNames();
+            while (enumeration.hasMoreElements()) {
+                String key = enumeration.nextElement();
+                if (needThisHeader(key)) {
+                    String value = request.getHeader(key);
+                    map.put(key, value);
+                }
             }
         }
+
         return map;
     }
 

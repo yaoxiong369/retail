@@ -15,6 +15,7 @@ import java.util.Map;
 public class FeignInterceptor implements RequestInterceptor {
     @Override
     public void apply(RequestTemplate requestTemplate) {
+
         Map<String, String> headers = getHeaders(getHttpServletRequest());
         for (String headerName : headers.keySet()) {
             requestTemplate.header(headerName, getHeaders(getHttpServletRequest()).get(headerName));
@@ -32,14 +33,17 @@ public class FeignInterceptor implements RequestInterceptor {
 
     private Map<String, String> getHeaders(HttpServletRequest request) {
         Map<String, String> map = new LinkedHashMap<>();
-        Enumeration<String> enumeration = request.getHeaderNames();
-        while (enumeration.hasMoreElements()) {
-            String key = enumeration.nextElement();
-            if (needThisHeader(key)) {
-                String value = request.getHeader(key);
-                map.put(key, value);
+        if(request!=null){
+            Enumeration<String> enumeration = request.getHeaderNames();
+            while (enumeration.hasMoreElements()) {
+                String key = enumeration.nextElement();
+                if (needThisHeader(key)) {
+                    String value = request.getHeader(key);
+                    map.put(key, value);
+                }
             }
         }
+
         return map;
     }
 

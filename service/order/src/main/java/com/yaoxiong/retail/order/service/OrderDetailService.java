@@ -6,8 +6,8 @@ import com.yaoxiong.retail.model.CustomerOrder;
 import com.yaoxiong.retail.model.OrderDetail;
 import com.yaoxiong.retail.vo.OrderVo;
 
-public interface OrderDetailService   extends IService<OrderDetail> {
-    Result saveOrderDetail(OrderDetail orderDetail);
+public interface OrderDetailService extends IService<OrderDetail> {
+    Result saveOrderDetail(OrderDetail orderDetail) throws Exception;
 
     Result saveOrderDetail(OrderVo orderVo) throws Exception;
 

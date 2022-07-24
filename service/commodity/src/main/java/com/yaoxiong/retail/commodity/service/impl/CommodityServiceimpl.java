@@ -17,7 +17,6 @@ import com.yaoxiong.retail.order.client.OrderFeignClient;
 import com.yaoxiong.retail.vo.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.ConvertUtils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
@@ -151,7 +150,7 @@ public class CommodityServiceimpl extends
             if (reList != null) {
                 for (Object object : reList) {
                     ConvertUtils
-                            .register(new StringToDateConverter(), java.util.Date.class);
+                            .register(new StringToDateConverter(), Date.class);
                     org.apache.commons.beanutils.BeanUtils.populate(orderDetail, (Map<String, Object>) object);
                     totalPrice += (orderDetail.getQuantity() * orderDetail.getSellPrice());
                     itemCount += orderDetail.getQuantity();
@@ -163,7 +162,7 @@ public class CommodityServiceimpl extends
 
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public Result updateCommodityAndPurchaseRemain(OrderVo orderVo) throws Exception {
         if (orderVo == null || StringUtils.isEmpty(orderVo.getOrderNumber()) ||
                 StringUtils.isEmpty(orderVo.getName()) || orderVo.getSellPrice() < 0 ||

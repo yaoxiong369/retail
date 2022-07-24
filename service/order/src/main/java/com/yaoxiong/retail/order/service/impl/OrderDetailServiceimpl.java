@@ -6,18 +6,20 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.yaoxiong.retail.base.utils.Result;
-import com.yaoxiong.retail.enums.OrderDetailStatusEnum;
-import com.yaoxiong.retail.enums.OrderStatusEnum;
-import com.yaoxiong.retail.model.CustomerOrder;
-import com.yaoxiong.retail.order.service.OrderService;
-import com.yaoxiong.retail.vo.DateAggregation;
-import com.yaoxiong.retail.vo.OrderWithCommodityVo;
 import com.yaoxiong.retail.commodity.client.CommodityFeignClient;
+import com.yaoxiong.retail.enums.OrderDetailStatusEnum;
+import com.yaoxiong.retail.model.CustomerOrder;
 import com.yaoxiong.retail.model.OrderDetail;
 import com.yaoxiong.retail.order.mapper.OrderDetailMapper;
 import com.yaoxiong.retail.order.service.OrderDetailService;
+import com.yaoxiong.retail.order.service.OrderService;
+import com.yaoxiong.retail.vo.DateAggregation;
 import com.yaoxiong.retail.vo.OrderVo;
+import com.yaoxiong.retail.vo.OrderWithCommodityVo;
 import com.yaoxiong.retail.vo.PlaceOrderDetailVo;
+import io.seata.core.context.RootContext;
+import io.seata.spring.annotation.GlobalTransactional;
+import io.seata.tm.api.GlobalTransactionContext;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang.time.DateUtils;
@@ -54,26 +56,30 @@ public class OrderDetailServiceimpl extends
     }
 
     @Override
-//    @Transactional
+    @GlobalTransactional(rollbackFor = Exception.class)
     public Result saveOrderDetail(OrderVo orderVo) throws Exception {
         if (orderVo == null || StringUtils.isEmpty(orderVo.getOrderNumber()) ||
                 StringUtils.isEmpty(orderVo.getName()) || orderVo.getSellPrice() < 0 ||
                 orderVo.getCommodityId().intValue() <= 0 || (orderVo.getQuantity() != null && orderVo.getQuantity() <= 0))
             return Result.error().message("Parameter error");
 
-        //TODO: (replace with distributed transactions) --> (RocketMQ:Dead-LetterMessage,Retry Queue,Ack)
         OrderDetail orderDetail = new OrderDetail();
+        Result result = Result.error();
 
-        Result result = commodityFeignClient.updateCommodityAndPurchaseRemain(orderVo);
+        try {
+            result = commodityFeignClient.updateCommodityAndPurchaseRemain(orderVo);
 
-        if (result.getSuccess()) {
-            BeanUtils.populate(orderDetail, (Map<String, Object>) (result.getData().get("data")));
-//            orderDetail = BeanUtils.mapToBean((Map<String, Object>) (result.getData().get("data")),OrderDetail.class);
-//            BeanUtils.copyProperties((OrderVo)(result.getData().get("data")), orderDetail);
-            result = saveOrderDetail(orderDetail);
-            if (!result.getSuccess()) {
-                //TODO:restore the remain
-            }
+            if (result.getSuccess()) {
+                BeanUtils.populate(orderDetail, (Map<String, Object>) (result.getData().get("data")));
+                result = saveOrderDetail(orderDetail);
+                if (!result.getSuccess()) {
+                    throw new Exception(result.getMessage());
+                }
+            } else
+                throw new Exception(result.getMessage());
+        } catch (Exception e) {
+            GlobalTransactionContext.reload((RootContext.getXID())).rollback();
+            throw new Exception(e.getMessage());
         }
 
         return result;

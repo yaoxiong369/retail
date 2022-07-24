@@ -86,14 +86,14 @@ public class CommodityController {
             Date todayDate = new Date();
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
             String today = dateFormat.format(todayDate);
-
+            // 域名访问的相对路径（通过浏览器访问的链接-虚拟路径）
             String saveToPath = accessPath + today + "/";
-
+            // 真实路径，实际储存的路径
             String realPath = realBasePath + today + "/";
-
+            // 储存文件的物理路径，使用本地路径储存
             String filepath = realPath + fileName;
             log.info("Upload picture named：" + fileName + "--Virtual file path is：" + saveToPath + "--Physical file path is：" + realPath);
-
+            // 判断有没有对应的文件夹
             File destFile = new File(filepath);
             if (!destFile.getParentFile().exists()) {
                 destFile.getParentFile().mkdirs();
